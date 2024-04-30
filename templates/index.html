@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Generate Questions</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="main">
+      <h1>Generate Questions</h1>
+      <form id="inputForm">
+        <label for="inputText">Enter Text:</label><br />
+        <textarea
+          style="overflow: hidden"
+          id="inputText"
+          name="inputText"
+          rows="4"
+          cols="50"
+        ></textarea
+        ><br />
+        <button type="submit">Generate Questions</button>
+      </form>
+      <div id="questions"></div>
+
+      <script>
+        document
+          .getElementById("inputForm")
+          .addEventListener("submit", function (event) {
+            event.preventDefault();
+            var text = document.getElementById("inputText").value;
+            fetch("/generate_questions", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ text: text }),
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                var questionsDiv = document.getElementById("questions");
+                questionsDiv.innerHTML = "";
+                data.questions.forEach((question) => {
+                  var p = document.createElement("p");
+                  p.textContent = question;
+                  questionsDiv.appendChild(p);
+                });
+              });
+          });
+      </script>
+    </div>
+  </body>
+</html>
