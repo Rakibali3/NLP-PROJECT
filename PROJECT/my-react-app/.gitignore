@@ -10,6 +10,10 @@
 
 # production
 /build
+/pacakge-lock.json
+/pacakge.json
+/uploads
+
 
 # misc
 .DS_Store

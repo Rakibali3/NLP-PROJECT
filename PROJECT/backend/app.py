@@ -4,7 +4,7 @@ from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 import os
 import cohere
-from flask import Flask
+import PyPDF2
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -12,6 +12,19 @@ CORS(app)
 
 # Set up your Cohere API key
 api_key = os.environ.get("COHERE_API_KEY")
+
+UPLOAD_FOLDER = 'uploads'
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+    
+def extract_text_from_pdf(pdf_file):
+    text = ""
+    with open(pdf_file, "rb") as file:
+        reader = PyPDF2.PdfReader(file)
+        for page in reader.pages:
+            text += page.extract_text()
+    return text
+
 
 def generate_summary_and_questions(text):
     # Tokenize the text into words
@@ -72,8 +85,21 @@ def index():
 
 @app.route('/generate_questions', methods=['POST'])
 def generate_questions():
-    # Receive input text from frontend
-    text = request.json.get('text')
+    input_type = request.form.get('inputType')
+
+    if input_type == 'text':
+        # Receive input text from frontend
+        text = request.form.get('text')
+    elif input_type == 'file':
+        # Receive input file from frontend
+        file = request.files['file']
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
+        file.save(file_path)
+
+        # Extract text from PDF
+        text = extract_text_from_pdf(file_path)
+    else:
+        return jsonify({"error": "Invalid input type"})
 
     # Generate summary and questions
     summary, questions = generate_summary_and_questions(text)
