@@ -4,8 +4,11 @@ from nltk.corpus import stopwords
 from nltk.probability import FreqDist
 import os
 import cohere
+from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Set up your Cohere API key
 api_key = os.environ.get("COHERE_API_KEY")
